@@ -9,7 +9,15 @@ import gradio as gr
 from occupancy_cpu import run_occupancy
 
 
-def process_video(video_file, line_y, max_distance, max_missed):
+def process_video(
+    video_file,
+    line_angle_deg,
+    line_center_x_pct,
+    line_center_y_pct,
+    flow_direction,
+    max_distance,
+    max_missed,
+):
     if not video_file:
         raise gr.Error("Sube un video para procesar.")
 
@@ -26,7 +34,10 @@ def process_video(video_file, line_y, max_distance, max_missed):
             input_path=str(input_path),
             output_path=str(output_path),
             report_path=str(report_path),
-            line_y=int(line_y),
+            line_angle_deg=float(line_angle_deg),
+            line_center_x_ratio=float(line_center_x_pct) / 100.0,
+            line_center_y_ratio=float(line_center_y_pct) / 100.0,
+            flow_direction=str(flow_direction),
             max_distance=float(max_distance),
             max_missed=int(max_missed),
         )
@@ -44,7 +55,9 @@ def process_video(video_file, line_y, max_distance, max_missed):
         f"Entradas: {report['in']}\n"
         f"Salidas: {report['out']}\n"
         f"Ocupacion: {report['occupancy']}\n"
-        f"Frames: {report['frames']}"
+        f"Frames: {report['frames']}\n"
+        f"Angulo: {report['line_angle_deg']} grados\n"
+        f"Flujo: {report['flow_direction']}"
     )
 
     return str(permanent_output), summary, json.dumps(report, indent=2)
@@ -54,7 +67,7 @@ def build_app():
     with gr.Blocks(title="Occupancy Analytics CPU") as demo:
         gr.Markdown("# Occupancy Analytics (CPU)")
         gr.Markdown(
-            "Sube un video, define la linea horizontal de cruce y ejecuta el conteo de entrada/salida."
+            "Sube un video, configura una linea (horizontal, vertical o inclinada) y define la direccion de flujo."
         )
 
         with gr.Row():
@@ -62,7 +75,41 @@ def build_app():
             video_output = gr.Video(label="Video procesado")
 
         with gr.Row():
-            line_y = gr.Slider(0, 1080, value=540, step=1, label="Linea de cruce (Y)")
+            line_angle_deg = gr.Slider(
+                -90,
+                90,
+                value=0,
+                step=5,
+                label="Angulo de linea (grados): 0=horizontal, 90=vertical",
+            )
+            flow_direction = gr.Dropdown(
+                choices=[
+                    "left_to_right",
+                    "right_to_left",
+                    "top_to_bottom",
+                    "bottom_to_top",
+                ],
+                value="left_to_right",
+                label="Direccion de flujo (se cuenta como IN)",
+            )
+
+        with gr.Row():
+            line_center_x_pct = gr.Slider(
+                0,
+                100,
+                value=50,
+                step=1,
+                label="Posicion X de la linea (%)",
+            )
+            line_center_y_pct = gr.Slider(
+                0,
+                100,
+                value=50,
+                step=1,
+                label="Posicion Y de la linea (%)",
+            )
+
+        with gr.Row():
             max_distance = gr.Slider(20, 200, value=90, step=1, label="Distancia max de tracking")
             max_missed = gr.Slider(1, 40, value=12, step=1, label="Frames perdidos max")
 
@@ -72,7 +119,15 @@ def build_app():
 
         run_btn.click(
             fn=process_video,
-            inputs=[video_input, line_y, max_distance, max_missed],
+            inputs=[
+                video_input,
+                line_angle_deg,
+                line_center_x_pct,
+                line_center_y_pct,
+                flow_direction,
+                max_distance,
+                max_missed,
+            ],
             outputs=[video_output, summary_box, json_box],
         )
 

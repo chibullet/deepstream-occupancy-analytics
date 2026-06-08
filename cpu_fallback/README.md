@@ -17,7 +17,10 @@ python3 occupancy_cpu.py \
   --input /ruta/a/video.mp4 \
   --output cpu_output.mp4 \
   --report cpu_report.json \
-  --line-y 540
+  --line-angle-deg 0 \\
+  --line-center-x-ratio 0.5 \\
+  --line-center-y-ratio 0.5 \\
+  --flow-direction left_to_right
 ```
 
 ## 3) Pagina web para subir videos
@@ -42,6 +45,10 @@ Si corres esto en Codespaces, usa el puerto reenviado 7860.
 
 - Usa detector HOG de OpenCV (CPU), por lo que la precisión/rendimiento es menor
   que DeepStream + TensorRT.
-- El conteo se hace al cruzar la línea horizontal `line-y`:
-  - Arriba -> abajo: `IN`
-  - Abajo -> arriba: `OUT`
+- La línea de cruce se puede configurar con ángulo:
+  - `0` = horizontal
+  - `90` = vertical
+  - valores intermedios = inclinada
+- En la web, el ángulo cambia en pasos de 5 grados.
+- La dirección elegida en `--flow-direction` se cuenta como `IN`.
+  El movimiento contrario se cuenta como `OUT`.
