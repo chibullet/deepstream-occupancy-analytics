@@ -1,0 +1,10 @@
+{
+  "name": "occupancy-cpu-fallback",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Gradio web UI for CPU occupancy analytics",
+  "scripts": {
+    "dev": "GRADIO_SERVER_PORT=7861 ../.venv/bin/python web_app.py",
+    "start": "GRADIO_SERVER_PORT=7861 ../.venv/bin/python web_app.py"
+  }
+}
