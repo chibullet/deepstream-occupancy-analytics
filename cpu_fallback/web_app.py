@@ -9,6 +9,12 @@ import gradio as gr
 from occupancy_cpu import run_occupancy
 
 
+def adjust_angle(current_angle, delta):
+    v = float(current_angle) + float(delta)
+    v = max(-90.0, min(90.0, v))
+    return int(round(v / 5.0) * 5)
+
+
 def process_video(
     video_file,
     line_angle_deg,
@@ -94,6 +100,20 @@ def build_app():
             )
 
         with gr.Row():
+            angle_minus_5 = gr.Button("-5 grados")
+            angle_plus_5 = gr.Button("+5 grados")
+            angle_h = gr.Button("Horizontal (0)")
+            angle_v = gr.Button("Vertical (90)")
+            angle_d1 = gr.Button("Diagonal (+45)")
+            angle_d2 = gr.Button("Diagonal (-45)")
+
+        with gr.Row():
+            flow_lr = gr.Button("IN: izquierda -> derecha")
+            flow_rl = gr.Button("IN: derecha -> izquierda")
+            flow_tb = gr.Button("IN: arriba -> abajo")
+            flow_bt = gr.Button("IN: abajo -> arriba")
+
+        with gr.Row():
             line_center_x_pct = gr.Slider(
                 0,
                 100,
@@ -130,6 +150,26 @@ def build_app():
             ],
             outputs=[video_output, summary_box, json_box],
         )
+
+        angle_minus_5.click(
+            fn=lambda a: adjust_angle(a, -5),
+            inputs=[line_angle_deg],
+            outputs=[line_angle_deg],
+        )
+        angle_plus_5.click(
+            fn=lambda a: adjust_angle(a, 5),
+            inputs=[line_angle_deg],
+            outputs=[line_angle_deg],
+        )
+        angle_h.click(fn=lambda: 0, outputs=[line_angle_deg])
+        angle_v.click(fn=lambda: 90, outputs=[line_angle_deg])
+        angle_d1.click(fn=lambda: 45, outputs=[line_angle_deg])
+        angle_d2.click(fn=lambda: -45, outputs=[line_angle_deg])
+
+        flow_lr.click(fn=lambda: "left_to_right", outputs=[flow_direction])
+        flow_rl.click(fn=lambda: "right_to_left", outputs=[flow_direction])
+        flow_tb.click(fn=lambda: "top_to_bottom", outputs=[flow_direction])
+        flow_bt.click(fn=lambda: "bottom_to_top", outputs=[flow_direction])
 
     return demo
 
