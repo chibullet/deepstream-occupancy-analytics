@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+synthetic_*.mp4
+synthetic_*.json
+cpu_fallback/
+web_output_*.mp4
+web_report_*.json
