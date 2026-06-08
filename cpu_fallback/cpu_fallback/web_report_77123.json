@@ -1,0 +1,9 @@
+{
+  "frames": 394,
+  "line_y": 540,
+  "in": 1,
+  "out": 0,
+  "occupancy": 1,
+  "input": "/tmp/gradio/8afa987519dbc1f3bcf57c2655675af8a25b072162a59dfdcc6600d12d7ea901/p.mp4",
+  "output": "/tmp/occupancy_hoyh633v/output.mp4"
+}
